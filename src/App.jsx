@@ -1,95 +1,121 @@
 import tmdbLogo from "./assets/tmdb.svg";
-import { Movie } from "./Movie";
-
+import { useState } from "react";
+import { useContext } from "react";
+import { MovieContext } from "./MovieContext";
 // Khởi tạo movie instance dùng đúng tên thuộc tính
-let movie = new Movie(
-  "Avengers: Endgame",
-  "Mankind was born on Earth. It was never meant to die here.",
-  "The adventures of a group of explorers who make use of a newly discovered wormhole to surpass the limitations on human space travel and conquer the vast distances involved in an interstellar voyage.",
-  ["Adventure", "Drama", "Science Fiction"],
-  ["Legendary Pictures", "Syncopy", "Lynda Obst Productions"],
-  "2014-11-07",
-  169,
-  "$746,606,706",
-  8.455,
-  "https://image.tmdb.org/t/p/original/7RyHsO4yDXtBv1zUU3mTpHeQ0d5.jpg",
-  "https://image.tmdb.org/t/p/w500/ulzhLuWrPK07P1YkdWQLZnQh1JL.jpg"
-);
-
 function App() {
   return <MyBody />;
 }
 export default App;
 export function MyBody() {
+  const movies = useContext(MovieContext);
+  const [chooseIndex, setChooseIndex] = useState(0);
+  const movie = movies[chooseIndex]; // Assuming you want to display the first movie for
   return (
     <div
       className="bg-cover min-h-screen"
       style={{ backgroundImage: `url(${movie.backgroundImage})` }}
     >
-      <MyOuterContainer movie={movie} />
+      <MyOuterContainer setChooseIndex={{ chooseIndex, setChooseIndex }} />
     </div>
   );
 }
 
-export function MyOuterContainer({ movie }) {
+export function MyOuterContainer({ setChooseIndex }) {
   return (
     <div className="flex flex-row justify-center my-fade min-h-screen px-4">
-      <MyContainer movie={movie} />
+      <MyContainer setChooseIndex={setChooseIndex} />
     </div>
   );
 }
 
-export function MyContainer({ movie }) {
+export function MyContainer({ setChooseIndex }) {
   return (
     <div className="my-8">
-      <MyColumn movie={movie} />
+      <MyColumn setChooseIndex={setChooseIndex} />
     </div>
   );
 }
 
-export function MyColumn({ movie }) {
+export function MyColumn({ setChooseIndex }) {
   return (
     <div className="h-full">
-      <MyContent movie={movie} />
+      <MyContent setChooseIndex={setChooseIndex} />
     </div>
   );
 }
 
-export function MyContent({ movie }) {
+export function MyContent({ setChooseIndex }) {
   return (
     <div className="">
-      <MyRowTitle />
-      <MyMovie movie={movie} />
+      <MyRowTitleContent setChooseIndex={setChooseIndex.setChooseIndex} />
+      <MyMovie choose={setChooseIndex.chooseIndex} />
       <MyFooter />
     </div>
   );
 }
 
-export function MyRowTitle() {
-  return (
-    <div className="">
-      <MyRowTitleContent />
-    </div>
-  );
-}
+export function MyRowTitleContent({ setChooseIndex }) {
+  const [isSearching, setIsSearching] = useState(false);
+  const [query, setQuery] = useState([]);
+  function handleSearch(e) {
+    setIsSearching(true);
+    const searchQuery = e.target.value.trim().toLowerCase();
+    if (searchQuery) {
+      // Simulate a search result
+      setQuery([
+        { title: "Avengers: Endgame", id: 0 },
+        { title: "Avengers: Infinity War", id: 1 },
+        { title: "Avengers: Age of Ultron", id: 2 },
+      ]);
+    } else {
+      setQuery([]);
+      setIsSearching(false);
+    }
+  }
 
-export function MyRowTitleContent() {
   return (
-    <div className="flex flex-col lg:flex-row justify-between items-center">
+    <div className="flex flex-col lg:flex-row justify-between items-center ">
       <div className="w-40 ">
         <img src={tmdbLogo} alt="TMDB Logo" />
       </div>
-      <div className="md:w-[530px] w-full">
+      <div className="md:w-[530px] w-full relative">
         <input
           className="hover:outline-none outline-none text-white w-full border-b-1"
           placeholder="Search Movie..."
+          onChange={handleSearch}
         />
+        {isSearching && (
+          <SearchResult results={query} chooseClick={setChooseIndex} />
+        )}
       </div>
     </div>
   );
 }
 
-export function MyMovie({ movie }) {
+function SearchResult({ results, chooseClick }) {
+  return (
+    <div className="bg-black/50 text-white  mt-2 absolute w-full">
+      {results.length > 0 ? (
+        results.map((item) => (
+          <div
+            key={item.id}
+            onClick={() => chooseClick(item.id)}
+            className="p-2 hover:bg-[#00fc87] hover:text-black cursor-pointer"
+          >
+            {item.title}
+          </div>
+        ))
+      ) : (
+        <div className="p-2">No results found</div>
+      )}
+    </div>
+  );
+}
+
+export function MyMovie({ choose }) {
+  const movies = useContext(MovieContext);
+  const movie = movies[choose]; // Assuming you want to display the first movie for now
   return (
     <div className="flex flex-col-reverse md:flex-row justify-start bg-black md:w-[920px] md:h-[574px] h-fit  mt-4">
       <div className="h-full aspect-2/3 w-fit">
@@ -124,12 +150,12 @@ export function AdditionalDetail({ movie }) {
       <div>
         <span>{movie.productions.join(", ")}</span>
       </div>
-      <MyDetailInfo />
+      <MyDetailInfo movie={movie} />
     </div>
   );
 }
 
-export function MyDetailInfo() {
+export function MyDetailInfo({ movie }) {
   return (
     <div className="text-white py-4 grid grid-cols-2 grid-rows-2 gap-4">
       <div>

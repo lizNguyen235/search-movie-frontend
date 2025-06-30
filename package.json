@@ -1,12 +1,12 @@
 {
   "name": "search-movie",
   "private": true,
-  "homepage": "https://github.com/lizNguyen235/search-movie-frontend",
+  "homepage": "https://lizNguyen235.github.io/search-movie-frontend",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
+    "deploy": "gh-pages -d dist",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
